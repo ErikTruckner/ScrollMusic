@@ -40,10 +40,33 @@ export default function App() {
   // *****************AUDIO
   // ****************************
 
+  const [audioReady, setAudioReady] = useState(false);
+
+  useEffect(() => {
+    const createAudioContext = () => {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const context = new AudioContext();
+      context.resume().then(() => {
+        setAudioReady(true);
+      });
+    };
+
+    const handleClick = () => {
+      createAudioContext();
+      document.removeEventListener('click', handleClick);
+    };
+
+    document.addEventListener('click', handleClick);
+
+    return () => {
+      document.removeEventListener('click', handleClick);
+    };
+  }, []);
+
   const [isMuted, setIsMuted] = useState(true);
   const audio = useRef(new Audio('/audio/track1.wav'));
   const playbackPosition = useRef(0);
-  const isInitialRender = useRef(true); // Keep track of initial render
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   const handleSoundToggle = () => {
     setIsMuted((prevState) => !prevState);
@@ -75,11 +98,9 @@ export default function App() {
 
     if (!isMuted) {
       audio.current.currentTime = playbackPosition.current;
-      if (!isInitialRender.current) {
-        audio.current.play().catch((error) => {
-          console.error('Error playing audio:', error);
-        });
-      }
+      audio.current.play().catch((error) => {
+        console.error('Error playing audio:', error);
+      });
     } else {
       audio.current.pause();
     }
@@ -104,12 +125,16 @@ export default function App() {
   const [scene1, setScene1] = useState(false);
 
   useEffect(() => {
-    if (currentPageValue === 0) {
-      setScene0(true);
-      setScene1(false);
-    } else if (currentPageValue === 4) {
-      setScene0(false);
-      setScene1(true);
+    if (currentPageValue >= 0 && currentPageValue <= 2) {
+      if (!scene0 && audioReady) {
+        setScene0(true);
+        setScene1(false);
+      }
+    } else if (currentPageValue >= 3 && currentPageValue <= 5) {
+      if (!scene1) {
+        setScene0(false);
+        setScene1(true);
+      }
     } else {
       setScene0(false);
       setScene1(false);
@@ -117,12 +142,12 @@ export default function App() {
   }, [currentPageValue]);
 
   useEffect(() => {
-    if (scene0) {
+    if (scene0 && audioReady) {
       console.log('Scene0 is now true!');
       handlePause(); // Pause the current track
       loadNewTrack('/audio/track1.wav'); // Load track1.wav
       audio.current.currentTime = playbackPosition.current; // Set the playback position of track1.wav
-      isInitialRender.current = false; // Set initial render flag to false
+      audio.current.play(); // Start playing track1.wav
     } else {
       console.log('Scene0 is now false!');
     }
@@ -196,28 +221,6 @@ function Scene({ isMuted, currentPageValue, setCurrentPageValue }) {
   // *********** POSITIONAL AUDIO  ***************
   //
 
-  const [audioReady, setAudioReady] = useState(false);
-
-  useEffect(() => {
-    const createAudioContext = () => {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      const context = new AudioContext();
-      context.resume().then(() => {
-        setAudioReady(true);
-      });
-    };
-
-    const handleClick = () => {
-      createAudioContext();
-      document.removeEventListener('click', handleClick);
-    };
-
-    document.addEventListener('click', handleClick);
-
-    return () => {
-      document.removeEventListener('click', handleClick);
-    };
-  }, []);
   //
   //
   //
