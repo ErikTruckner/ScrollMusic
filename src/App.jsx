@@ -64,7 +64,7 @@ export default function App() {
   }, []);
 
   const [isMuted, setIsMuted] = useState(true);
-  const audio = useRef(new Audio('/audio/track1.wav'));
+  const audio = useRef(new Audio('./audio/track1.wav'));
   const playbackPosition = useRef(0);
   const [hasInteracted, setHasInteracted] = useState(false);
 
@@ -145,7 +145,7 @@ export default function App() {
     if (scene0 && audioReady) {
       console.log('Scene0 is now true!');
       handlePause(); // Pause the current track
-      loadNewTrack('/audio/track1.wav'); // Load track1.wav
+      loadNewTrack('./audio/track1.wav'); // Load track1.wav
       audio.current.currentTime = playbackPosition.current; // Set the playback position of track1.wav
       audio.current.play(); // Start playing track1.wav
     } else {
@@ -157,7 +157,7 @@ export default function App() {
     if (scene1) {
       console.log('Scene1 is now true!');
       handlePause(); // Pause the current track
-      loadNewTrack('/audio/track2.wav'); // Load track2.wav
+      loadNewTrack('./audio/track2.wav'); // Load track2.wav
       audio.current.currentTime = playbackPosition.current; // Set the playback position of track2.wav
       audio.current.play(); // Start playing track2.wav
     } else {
